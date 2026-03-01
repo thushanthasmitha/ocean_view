@@ -1,48 +1,101 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="com.mycompany.ocean_view.model.ReservationDetails" %>
-<%@ page import="com.mycompany.ocean_view.service.BillingService.BillResult" %>
 <%
-  if (session.getAttribute("username") == null) { response.sendRedirect("login"); return; }
-  ReservationDetails res = (ReservationDetails) request.getAttribute("res");
-  BillResult bill = (BillResult) request.getAttribute("bill");
+  if (session.getAttribute("username") == null) {
+    response.sendRedirect("login");
+    return;
+  }
 %>
 <!DOCTYPE html>
 <html>
-<head><title>Generate Bill</title></head>
+<head>
+  <title>Generate Bill</title>
+
+  <style>
+    /* Optional small styling */
+    .bill-box {
+      border: 1px solid #ccc;
+      padding: 16px;
+      width: 520px;
+    }
+
+    /* Print only the bill preview area */
+    @media print {
+      .no-print { display: none !important; }
+      .print-area { display: block; }
+      body { margin: 0; }
+    }
+  </style>
+
+  <script>
+    function printBill() {
+      window.print();
+    }
+  </script>
+</head>
 <body>
+
 <h2>Generate Bill</h2>
-<a href="dashboard.jsp">← Back</a>
 
-<% if (request.getAttribute("msg") != null) { %>
-<p style="color:green;"><%= request.getAttribute("msg") %></p>
-<% } %>
-<% if (request.getAttribute("error") != null) { %>
-<p style="color:red;"><%= request.getAttribute("error") %></p>
-<% } %>
+<div class="no-print">
+  <p><a href="dashboard.jsp">&larr; Back</a></p>
 
-<form method="post" action="bill/generate">
-  Reservation Number: <input name="reservationNumber" required><br><br>
-  Discount: <input name="discount" value="0.00" required><br><br>
-  Tax: <input name="tax" value="0.00" required><br><br>
-  <button type="submit">Generate</button>
-</form>
+  <% if (request.getAttribute("error") != null) { %>
+    <p style="color:red;"><%= request.getAttribute("error") %></p>
+  <% } %>
 
-<% if (res != null && bill != null) { %>
-<hr>
-<h3>Bill</h3>
-<p><b>Reservation:</b> <%= res.getReservationNumber() %></p>
-<p><b>Guest:</b> <%= res.getGuestName() %></p>
-<p><b>Room:</b> <%= res.getRoomNumber() %> (<%= res.getRoomType() %>)</p>
-<p><b>Dates:</b> <%= res.getCheckIn() %> to <%= res.getCheckOut() %></p>
+  <% if (request.getAttribute("success") != null) { %>
+    <p style="color:green;"><%= request.getAttribute("success") %></p>
+  <% } %>
 
-<p><b>Nights:</b> <%= bill.nights %></p>
-<p><b>Rate per night:</b> <%= bill.rate %></p>
-<p><b>SubTotal:</b> <%= bill.subTotal %></p>
-<p><b>Discount:</b> <%= bill.discount %></p>
-<p><b>Tax:</b> <%= bill.tax %></p>
-<p><b>Total:</b> <%= bill.total %></p>
+  <form method="post" action="<%= request.getContextPath() %>/bill/generate">
+    <p>
+      Reservation Number:
+      <input type="text" name="reservationNumber" required>
+    </p>
 
-<button onclick="window.print()">Print</button>
+    <p>
+      Discount:
+      <input type="text" name="discount" value="0.00">
+    </p>
+
+    <p>
+      Tax:
+      <input type="text" name="tax" value="0.00">
+    </p>
+
+    <button type="submit">Generate</button>
+  </form>
+
+  <hr/>
+</div>
+
+<%
+  Object rObj = request.getAttribute("reservation");
+  if (rObj != null) {
+    com.mycompany.ocean_view.model.ReservationDetails r =
+      (com.mycompany.ocean_view.model.ReservationDetails) rObj;
+%>
+
+<h3>Bill Preview</h3>
+
+<div class="print-area bill-box">
+  <p><b>Reservation Number:</b> <%= r.getReservationNumber() %></p>
+  <p><b>Guest:</b> <%= r.getGuestName() %></p>
+  <p><b>Room:</b> <%= r.getRoomNumber() %> (<%= r.getRoomType() %>)</p>
+  <p><b>Check-in:</b> <%= r.getCheckIn() %></p>
+  <p><b>Check-out:</b> <%= r.getCheckOut() %></p>
+
+  <p><b>Nights:</b> <%= request.getAttribute("nights") %></p>
+  <p><b>Rate per Night:</b> <%= request.getAttribute("rate") %></p>
+  <p><b>Discount:</b> <%= request.getAttribute("discount") %></p>
+  <p><b>Tax:</b> <%= request.getAttribute("tax") %></p>
+  <p><b>Total Amount:</b> <%= request.getAttribute("total") %></p>
+</div>
+
+<div class="no-print" style="margin-top:10px;">
+  <button type="button" onclick="printBill()">Print Bill</button>
+</div>
+
 <% } %>
 
 </body>
