@@ -153,7 +153,7 @@
 
         <div class="form-group">
             <label>Guest Full Name</label>
-            <input type="text" name="fullName" placeholder="John Doe" required>
+            <input type="text" name="fullName" placeholder="guest name" required>
         </div>
 
         <div class="form-group">
@@ -168,7 +168,7 @@
             </div>
             <div class="form-group">
                 <label>Email (Optional)</label>
-                <input type="email" name="email" placeholder="john@example.com">
+                <input type="email" name="email" placeholder="name@example.com">
             </div>
         </div>
 
